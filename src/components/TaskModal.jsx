@@ -176,7 +176,7 @@ function TaskModal({ onClose }) {
                 id="task-end-date"
                 className="task-input"
                 type="date"
-                value={endDate}
+                value={formattedDate(endDate)}
                 onChange={(event) => setEndDate(event.target.value)}
               />
             </div>

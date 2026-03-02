@@ -1,5 +1,8 @@
 import { flags, users } from "../data";
-
+import editPencilIcon from "../assets/edit-pencil.svg";
+import paperclipIcon from "../assets/attachment-paperclip.svg";
+import paperclipLightIcon from "../assets/attachment-paperclip-light.svg";
+import clockIcon from "../assets/icon-clock.svg";
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-US", {
     month: "long",
@@ -31,7 +34,7 @@ function TaskCard({
       <div className="task-card-header">
         <h3>{task.title}</h3>
         <button className="icon-btn">
-          <img src="./src/assets/edit-pencil.svg" alt="pencil-image" />
+          <img src={editPencilIcon} alt="pencil-image" />
         </button>
       </div>
       {task.description ? <p>{task.description}</p> : null}
@@ -49,11 +52,7 @@ function TaskCard({
         <span className="attachments">
           <img
             className="card-icon"
-            src={
-              task.attachments > 0
-                ? "./src/assets/attachment-paperclip.svg"
-                : "./src/assets/attachment-paperclip-light.svg"
-            }
+            src={task.attachments > 0 ? paperclipIcon : paperclipLightIcon}
             alt="attachment-image"
           />
           {task.attachments}
@@ -73,11 +72,7 @@ function TaskCard({
           />
         </svg>
         <span className="deadline">
-          <img
-            className=" card-icon"
-            src="./src/assets/icon-clock.svg"
-            alt="clock-image"
-          />
+          <img className=" card-icon" src={clockIcon} alt="clock-image" />
           {formatDate(task.deadline)}
         </span>
       </div>
