@@ -12,8 +12,10 @@ function formatDate(dateStr: string) {
 
 function TaskCard({
   task,
+  onEditTask,
 }: {
   task: {
+    taskId: number;
     title: string;
     description: string | null;
     assignedTo: number;
@@ -22,6 +24,16 @@ function TaskCard({
     flagId: number;
     statusId: number;
   };
+  onEditTask: (task: {
+    taskId: number;
+    title: string;
+    description: string | null;
+    assignedTo: number;
+    attachments: number;
+    deadline: string;
+    flagId: number;
+    statusId: number;
+  }) => void;
 }) {
   const flagColor =
     flags.find((flag) => flag.flagId === task.flagId)?.color || "#C4C4C4";
@@ -33,7 +45,12 @@ function TaskCard({
     <div className="task-card">
       <div className="task-card-header">
         <h3>{task.title}</h3>
-        <button className="icon-btn">
+        <button
+          type="button"
+          className="icon-btn edit-task-btn"
+          onClick={() => onEditTask(task)}
+          aria-label="Edit task"
+        >
           <img src={editPencilIcon} alt="pencil-image" />
         </button>
       </div>

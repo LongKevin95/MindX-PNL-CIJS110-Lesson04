@@ -3,6 +3,7 @@ import TaskCard from "./TaskCard";
 function TasksColumn({
   status,
   tasks,
+  onEditTask,
 }: {
   status: { name: string; id: number };
   tasks: {
@@ -15,6 +16,16 @@ function TasksColumn({
     flagId: number;
     statusId: number;
   }[];
+  onEditTask: (task: {
+    taskId: number;
+    title: string;
+    description: string | null;
+    assignedTo: number;
+    attachments: number;
+    deadline: string;
+    flagId: number;
+    statusId: number;
+  }) => void;
 }) {
   return (
     <>
@@ -35,7 +46,7 @@ function TasksColumn({
         </div>
         <div className="column-cards">
           {tasks.map((task) => (
-            <TaskCard key={task.taskId} task={task} />
+            <TaskCard key={task.taskId} task={task} onEditTask={onEditTask} />
           ))}
         </div>
       </div>

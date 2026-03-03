@@ -177,6 +177,65 @@
   font-weight: bold;
 }
 
+.modal-flag-picker {
+  position: relative;
+}
+
+.flag-badge-btn {
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.9rem;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.flag-badge-btn:hover {
+  background: #f9fafb;
+}
+
+.modal-flag-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 9.5rem;
+  margin: 0;
+  padding: 0.35rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+  list-style: none;
+  z-index: 5;
+}
+
+.modal-flag-option {
+  width: 100%;
+  border: none;
+  border-radius: 0.4rem;
+  background: transparent;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  cursor: pointer;
+}
+
+.modal-flag-option:hover,
+.modal-flag-option.is-active {
+  background: #f3f4f6;
+}
+
+.modal-flag-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -189,7 +248,7 @@
 }
 
 .task-modal {
-  width: min(860px, 100%);
+  width: min(700px, 100%);
   max-height: calc(100vh - 3rem);
   overflow-y: auto;
   border-radius: 16px;
@@ -235,6 +294,57 @@
   grid-column: 2;
 }
 
+.date-input-wrapper {
+  position: relative;
+}
+
+.task-input.date-display {
+  cursor: pointer;
+  padding-right: 3rem;
+}
+
+.date-picker-trigger {
+  position: absolute;
+  top: 50%;
+  right: 0.85rem;
+  transform: translateY(-50%);
+  width: 1.9rem;
+  height: 1.9rem;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.date-picker-trigger:hover {
+  color: #374151;
+}
+
+.date-picker-trigger svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.date-picker-trigger:focus-visible {
+  outline: 2px solid #6d48f2;
+  outline-offset: 2px;
+  border-radius: 0.45rem;
+}
+
+.date-hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .description-field {
   grid-column: 1;
 }
@@ -278,6 +388,31 @@
 .task-select {
   min-height: 3.6rem;
   padding: 0.8rem 1rem;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.task-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 2.8rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #4b5563 50%),
+    linear-gradient(135deg, #4b5563 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.15rem) 52%,
+    calc(100% - 0.75rem) 52%;
+  background-size:
+    0.45rem 0.45rem,
+    0.45rem 0.45rem;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.task-select::-ms-expand {
+  display: none;
 }
 
 .task-textarea {
@@ -292,6 +427,9 @@
   outline: none;
   border-color: #6d48f2;
   box-shadow: 0 0 0 3px rgba(109, 72, 242, 0.14);
+}
+.status-field .task-select {
+  width: 50%;
 }
 
 .task-input::placeholder,
@@ -331,65 +469,6 @@
   border: none;
   color: #ffffff;
   background: linear-gradient(90deg, #6741e6 0%, #7c4dff 100%);
-}
-
-.flag-picker {
-  position: relative;
-}
-
-.flag-trigger {
-  width: 3rem;
-  height: 3rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.9rem;
-  background: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.flag-trigger:hover {
-  background-color: #f9fafb;
-}
-
-.flag-menu {
-  position: absolute;
-  top: calc(100% + 0.4rem);
-  left: 0;
-  min-width: 9rem;
-  margin: 0;
-  padding: 0.35rem;
-  list-style: none;
-  border: 1px solid #e6ecf0;
-  border-radius: 0.5rem;
-  background: #ffffff;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
-  z-index: 5;
-}
-
-.flag-option {
-  width: 100%;
-  border: none;
-  border-radius: 0.35rem;
-  background: transparent;
-  text-align: left;
-  padding: 0.45rem 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  cursor: pointer;
-}
-
-.flag-option:hover,
-.flag-option.is-active {
-  background: #f3f4f6;
-}
-
-.flag-dot {
-  width: 0.7rem;
-  height: 0.7rem;
-  border-radius: 50%;
 }
 
 @media (max-width: 860px) {

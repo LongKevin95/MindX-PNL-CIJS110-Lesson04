@@ -1,32 +1,40 @@
 import { useEffect, useRef, useState } from "react";
-import { flags, taskStatus, users } from "../data";
-const formattedDate = (date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const newDate = `${year}-${month}-${day}`;
-  return newDate;
-};
+import { flags, taskStatus, tasks, users } from "../data";
+import { formatDate } from "../utils/formatDate";
+const date = new Date();
+const year = date.getFullYear();
+const month = String(date.getMonth() + 1).padStart(2, "0");
+const day = String(date.getDate()).padStart(2, "0");
+const today = `${year}-${month}-${day}`;
 
-function TaskModal({ onClose }) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [endDate, setEndDate] = useState(formattedDate(new Date()));
-  const [assignedTo, setAssignedTo] = useState(users[0]?.userId ?? 0);
-  const [statusId, setStatusId] = useState("");
-  const [showTitleError, setShowTitleError] = useState(false);
-  const [selectedFlagId, setSelectedFlagId] = useState(0);
+function TaskModal({ onClose, onSave, initialTask }) {
+  const [title, setTitle] = useState(initialTask?.title ?? "");
+  const [description, setDescription] = useState(
+    initialTask?.description ?? "",
+  );
+  const [endDate, setEndDate] = useState(initialTask?.deadline ?? today);
+  const [assignedTo, setAssignedTo] = useState(
+    initialTask?.assignedTo ?? users[0]?.userId ?? 0,
+  );
+  const [statusId, setStatusId] = useState(
+    initialTask?.statusId ?? taskStatus[0]?.statusId ?? 1,
+  );
+  const defaultLowFlagId =
+    flags.find((flag) => flag.name.toLowerCase() === "low")?.flagId ??
+    flags[0]?.flagId ??
+    1;
+  const [selectedFlagId, setSelectedFlagId] = useState(
+    initialTask?.flagId ?? defaultLowFlagId,
+  );
   const [isFlagMenuOpen, setIsFlagMenuOpen] = useState(false);
+  const [showTitleError, setShowTitleError] = useState(false);
   const flagPickerRef = useRef(null);
+  const dateInputRef = useRef(null);
 
-  const flagOptions = [
-    { flagId: 0, name: "Not assigned", color: "gray" },
-    ...flags,
-  ];
   const selectedFlag =
-    flagOptions.find((flag) => flag.flagId === selectedFlagId) ||
-    flagOptions[0];
+    flags.find((flag) => flag.flagId === selectedFlagId) || flags[0];
 
+  // ngăn không cho cuộn trang khi modal đang mở
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -49,6 +57,7 @@ function TaskModal({ onClose }) {
     };
   }, [onClose]);
 
+  // đảm bảo khi click ra ngoài flag picker thì đóng menu
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -71,8 +80,28 @@ function TaskModal({ onClose }) {
   const handleSave = (event) => {
     event.preventDefault();
 
-    if (!title.trim()) {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
       setShowTitleError(true);
+      return;
+    }
+
+    const nextTaskId =
+      tasks.length > 0 ? Math.max(...tasks.map((task) => task.taskId)) + 1 : 1;
+
+    const newTask = {
+      taskId: initialTask?.taskId ?? nextTaskId,
+      title: trimmedTitle,
+      description: description.trim() || null,
+      statusId,
+      flagId: selectedFlagId,
+      assignedTo,
+      deadline: endDate,
+      attachments: initialTask?.attachments ?? 0,
+    };
+
+    if (typeof onSave === "function") {
+      onSave(newTask);
       return;
     }
 
@@ -83,14 +112,15 @@ function TaskModal({ onClose }) {
     <div className="modal-overlay" role="presentation">
       <div className="task-modal" onClick={(event) => event.stopPropagation()}>
         <div className="task-modal-top">
-          <div className="flag-picker" ref={flagPickerRef}>
+          <div className="modal-flag-picker" ref={flagPickerRef}>
             <button
               type="button"
-              className="flag-trigger"
+              className="flag-badge-btn"
               onClick={() => setIsFlagMenuOpen((prev) => !prev)}
               aria-haspopup="listbox"
               aria-expanded={isFlagMenuOpen}
-              title={selectedFlag.name}
+              aria-label="Choose flag"
+              title={selectedFlag?.name || "Low"}
             >
               <svg
                 width="15"
@@ -98,24 +128,29 @@ function TaskModal({ onClose }) {
                 viewBox="0 0 15 17"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
               >
                 <path
                   d="M9.4 2L9 0H0V17H2V10H7.6L8 12H15V2H9.4Z"
-                  fill={selectedFlag.color}
+                  fill={selectedFlag?.color || "#00FF00"}
                 />
               </svg>
             </button>
 
             {isFlagMenuOpen && (
-              <ul className="flag-menu" role="listbox" aria-label="Choose flag">
-                {flagOptions.map((flag) => (
+              <ul
+                className="modal-flag-menu"
+                role="listbox"
+                aria-label="Flag options"
+              >
+                {flags.map((flag) => (
                   <li key={flag.flagId}>
                     <button
                       type="button"
                       className={
                         selectedFlagId === flag.flagId
-                          ? "flag-option is-active"
-                          : "flag-option"
+                          ? "modal-flag-option is-active"
+                          : "modal-flag-option"
                       }
                       onClick={() => {
                         setSelectedFlagId(flag.flagId);
@@ -123,7 +158,7 @@ function TaskModal({ onClose }) {
                       }}
                     >
                       <span
-                        className="flag-dot"
+                        className="modal-flag-dot"
                         style={{ backgroundColor: flag.color }}
                         aria-hidden="true"
                       />
@@ -144,7 +179,9 @@ function TaskModal({ onClose }) {
           </button>
         </div>
 
-        <h2 className="task-modal-title">Save task</h2>
+        <h2 className="task-modal-title">
+          {initialTask ? "Edit task" : "Save task"}
+        </h2>
 
         <form className="task-form" onSubmit={handleSave} noValidate>
           <div className="task-form-grid">
@@ -172,13 +209,44 @@ function TaskModal({ onClose }) {
 
             <div className="task-field end-date-field">
               <label htmlFor="task-end-date">End Date</label>
-              <input
-                id="task-end-date"
-                className="task-input"
-                type="date"
-                value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
-              />
+              <div className="date-input-wrapper">
+                <input
+                  className="task-input date-display"
+                  type="text"
+                  value={formatDate(endDate)}
+                  readOnly
+                  onClick={() => dateInputRef.current?.showPicker()}
+                />
+                <button
+                  type="button"
+                  className="date-picker-trigger"
+                  onClick={() => dateInputRef.current?.showPicker()}
+                  aria-label="Open date picker"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M7 2V5M17 2V5M3 9H21M6 4H18C19.1046 4 20 4.89543 20 6V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V6C4 4.89543 4.89543 4 6 4Z"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                <input
+                  id="task-end-date"
+                  ref={dateInputRef}
+                  className="date-hidden"
+                  type="date"
+                  value={endDate}
+                  onChange={(event) => setEndDate(event.target.value)}
+                />
+              </div>
             </div>
 
             <div className="task-field description-field">
@@ -197,7 +265,7 @@ function TaskModal({ onClose }) {
               <select
                 id="task-assign"
                 className="task-select"
-                value={assignedTo}
+                value={`${assignedTo}`}
                 onChange={(event) => setAssignedTo(Number(event.target.value))}
               >
                 {users.map((user) => (
@@ -214,9 +282,8 @@ function TaskModal({ onClose }) {
                 id="task-status"
                 className="task-select"
                 value={statusId}
-                onChange={(event) => setStatusId(event.target.value)}
+                onChange={(event) => setStatusId(Number(event.target.value))}
               >
-                <option value="">Choose status</option>
                 {taskStatus.map((status) => (
                   <option key={status.statusId} value={status.statusId}>
                     {status.name}
